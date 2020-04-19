@@ -1,67 +1,93 @@
 import React, { useEffect } from 'react'
 import './DrawableCanvas.css'
 
+import useMouse from '../../hooks/useMouse'
 
-const DrawableCanvas = ({ socket }) => {
+const DrawableCanvas = ({ socket, pallete }) => {
+    const [mouse, setMouse] = useMouse()
+    
+    const handleMouseMove = e => {
+
+    }
+
     useEffect(() => {
-        let mouse = {
-            click: false,
-            move: false,
-            pos: {
-                x: 0,
-                y: 0
-            },
-            pos_prev: false
-        }
-
         const canvas = document.getElementById('chart')
         const ctx = canvas.getContext('2d')
-        const width = window.innerWidth
-        const height = window.innerHeight
-
+        const width = canvas.offsetWidth
+        const height = canvas.offsetHeight
+    
         canvas.width = width
         canvas.height = height
 
         canvas.addEventListener('mousedown', e => {
-            mouse.click = true
+            setMouse(draft => {
+                draft.click = true
+            })
         })
 
         canvas.addEventListener('mouseup', e => {
-            mouse.click = false
+            setMouse(draft => {
+                draft.click = false
+            })
         })
 
         canvas.addEventListener('mousemove', e => {
-            mouse.pos.x = e.clientX / width
-            mouse.pos.y = e.clientY / height
-            mouse.move = true
+            setMouse(draft => {
+                draft.pos.x = e.offsetX / width
+                draft.pos.y = e.offsetY / height
+                draft.move = true
+            })
+            
         })
 
-        socket.on('draw_line', data => {
-            const line = data.line
+        socket.on('draw_line', ({ line, opts }) => {
             ctx.beginPath()
-            ctx.lineWith = 2
+            ctx.lineWidth = opts.size
+            ctx.strokeStyle = opts.color
+            ctx.lineCap = 'round'
             ctx.moveTo(line[0].x * width, line[0].y * height)
             ctx.lineTo(line[1].x * width, line[1].y * height)
             ctx.stroke()
         })
 
-        const mainLoop = () => {
-            if (mouse.click && mouse.move && mouse.pos_prev) {
-                socket.emit('draw_line', { line: [mouse.pos, mouse.pos_prev] })
-                mouse.move = false
+        socket.on('clear_draw', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+        })
+
+
+    }, [])
+
+    useEffect(() => {
+
+        setMouse(draft => {
+            if (draft.click && draft.move && draft.pos_prev) {
+                socket.emit('draw_line', { line: [draft.pos, draft.pos_prev], opts: { size: pallete.size, color: pallete.color }})
             }
-            mouse.pos_prev = { x: mouse.pos.x, y: mouse.pos.y }
-            setTimeout(mainLoop, 25)
-        }
-        mainLoop()
-    })
+            draft.pos_prev = { x: draft.pos.x, y: draft.pos.y }
+        })
+
+        
+        // const mainLoop = () => {
+        //     setMouse(draft => {
+        //         console.log(draft.click && draft.move && draft.pos_prev, draft.click, draft.move, draft.pos.x)
+        //         if (draft.click && draft.move && draft.pos_prev) {
+        //             console.log(draft.click, draft.move, draft.pos_prev)
+        //             socket.emit('draw_line', { line: [draft.pos, draft.pos_prev], opts: { size: pallete.size, color: pallete.color }})
+
+        //         }
+        //         draft.pos_prev = { x: draft.pos.x, y: draft.pos.y }
+        //     })
+        //     setTimeout(mainLoop, 10)
+        // }
+        // mainLoop()
+            
+    }, [mouse.pos])
+
+    
 
     return (
-        <>
-            <canvas id="chart"> </canvas>
-        </>
+        <canvas id="chart"> </canvas>
     )
-
 }
 
 export default DrawableCanvas

@@ -4,13 +4,21 @@ const path = require('path')
 const http = require('http')
 const socket = require('socket.io')
 
+const dotenv = require('dotenv')
+dotenv.config()
+
 const app = express()
 const server = http.createServer(app)
 const io = socket(server, { origins: '*:*' })
 
 // settings
-app.set('port', process.env.PORT || 3100)
-app.use(express.static(path.join(__dirname, '..', 'public')))
+if(process.env.NODE_ENV == 'development') {
+    app.set('port', process.env.REACT_APP_SERVER_PORT || 5000)
+    
+} else {
+    app.set('port', process.env.PORT || 3000)
+}
+app.use(express.static(path.join(__dirname, '..', 'build')))
 
 // sockets
 require('./sockets')(io)
@@ -21,7 +29,7 @@ app.use(cors())
 // routes
 app.use('*', (req, res, next) => {
     if(!req.originalUrl.includes(process.env.API_PATH))
-        res.sendFile(path.join(__dirname, '..', 'public', 'index.html'))
+        res.sendFile(path.join(__dirname, '..', 'build', 'index.html'))
     else
         next()
 })

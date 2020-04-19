@@ -1,0 +1,99 @@
+.color-pallete input[type="checkbox"] {
+    display: none;
+  }
+  
+.color-pallete input[type="checkbox"] + label {
+  -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16),
+    0 3px 6px rgba(0, 0, 0, 0.23);
+  -moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  display: inline-block;
+  width: 53px;
+  height: 53px;
+  border-radius: 50%;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.color-pallete input[type="checkbox"]:checked + label:before {
+  content: "✓";
+  font-size: 2em;
+  line-height: 53px;
+  text-align: center;
+  display: block;
+  position: absolute;
+  width: 53px;
+  height: 53px;
+  top: 0;
+  left: 0;
+  color: #fff;
+}
+  
+/* -- Ripple-effect ----------------------------------- */
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+  -webkit-transform: translatez(0);
+}
+.ink {
+  display: block;
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  transform: scale(0);
+}
+.ink {
+  background: #fff;
+  opacity: 1;
+}
+.ink.animate {
+  -webkit-animation: ripple-effect 0.5s linear;
+  -o-animation: ripple-effect 0.5s linear;
+  animation: ripple-effect 0.5s linear;
+}
+  
+@keyframes ripple-effect {
+  100% {
+    opacity: 0;
+    -webkit-transform: scale(2.5);
+    -ms-transform: scale(2.5);
+    -o-transform: scale(2.5);
+    transform: scale(2.5);
+  }
+}
+@-webkit-keyframes ripple-effect {
+  100% {
+    opacity: 0;
+    -webkit-transform: scale(2.5);
+    -ms-transform: scale(2.5);
+    -o-transform: scale(2.5);
+    transform: scale(2.5);
+  }
+}
+@-moz-keyframes ripple-effect {
+  100% {
+    opacity: 0;
+    -webkit-transform: scale(2.5);
+    -ms-transform: scale(2.5);
+    -o-transform: scale(2.5);
+    transform: scale(2.5);
+  }
+}
+@-ms-keyframes ripple-effect {
+  100% {
+    opacity: 0;
+    -webkit-transform: scale(2.5);
+    -ms-transform: scale(2.5);
+    -o-transform: scale(2.5);
+    transform: scale(2.5);
+  }
+}
+@-o-keyframes ripple-effect {
+  100% {
+    opacity: 0;
+    -webkit-transform: scale(2.5);
+    -ms-transform: scale(2.5);
+    -o-transform: scale(2.5);
+    transform: scale(2.5);
+  }
+}

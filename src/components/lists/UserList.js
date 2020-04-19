@@ -4,8 +4,8 @@ const UserList = ({ users }) => {
     return (
         <ul>
             { users ? users.map(user => 
-                <li>
-                    { user._id }
+                <li key={user._id}>
+                    { user.name } - { user.points }
                 </li>
             ) : null }
         </ul>

@@ -1,0 +1,10 @@
+.chat-list {
+    height: 50vh;
+}
+
+.input-message {
+    width: 100%;
+}
+
+#messages { list-style-type: none; margin: 0; padding: 0; }
+#messages li { padding: 5px 10px; }

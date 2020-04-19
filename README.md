@@ -1,10 +1,14 @@
-# Sketch league 2 confirmed
+# Sketch game for gamers
+Is a game like pinturillo but using game characters from League of legends, Overwatch and more.
+
+## Requirements
+* nodejs >=8.10
+* yarn >=1.21.1
 
 ## Installing
-TODO
+Clone the repository, on the root folder run `yarn insntall`, then tou are ready to go.
 
 ## Available Scripts
-
 In the project directory, you can run:
 
 ### `yarn run web`
@@ -29,7 +33,14 @@ Launches the test runner in the interactive watch mode.
 
 Builds the app for production to the `build` folder.
 
-### Deployment
+## Deployment
 
-TODO
+CI/CD is configured for this repository, every commit in master will be deployed to: [https://draw-league.herokuapp.com](https://draw-league.herokuapp.com) and every tag release will be deployed to production [https://zketcher.com](https://zketcher.com).
+
+## Environments
+
+* [Development](https://draw-league.herokuapp.com)
+* [Production](https://zketcher.com).
+
+
 

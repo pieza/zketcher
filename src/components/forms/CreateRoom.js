@@ -12,10 +12,10 @@ const words = [
         id: 'ow',
         image: 'https://i.ya-webdesign.com/images/widowmaker-logo-png-7.png'
     },
-    // {
-    //     id: 'ds',
-    //     image: ''
-    // },
+    {
+        id: 'paladins',
+        image: 'https://newesc.com/wp-content/uploads/Paladins-Portada-585x600.jpg'
+    },
     // {
     //     id: 'ow',
     //     image: ''
@@ -79,7 +79,7 @@ const CreateRoom = ({ history, socket }) => {
                         <div className="input-group">
                             <div className="input-group-prepend">
                                 <div className="input-group-text">
-                                    <i className="material-icons prefix">home</i>
+                                    <i className="material-icons prefix">hourglass_empty</i>
                                 </div>
                             </div>
                             <input  name="room" type="number" placeholder="Max rounds" value={maxRounds} max="20"
@@ -99,17 +99,6 @@ const CreateRoom = ({ history, socket }) => {
                         </div>
                     </div>
 
-                    <div className="form-group">
-                        <div className="input-group">
-                            <div className="input-group-prepend">
-                                <div className="input-group-text">
-                                    <i className="material-icons prefix">home</i>
-                                </div>
-                            </div>
-                            <input  name="room" type="number" placeholder="Time per round (seconds)" value={maxTime} max="600"
-                                className="form-control" required onChange={event => setMaxTime(event.target.value)}/>
-                        </div>
-                    </div>
 
                     <div className="form-group word-selection">
                         <ul>

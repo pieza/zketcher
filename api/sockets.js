@@ -198,6 +198,7 @@ module.exports = io => {
                             clearInterval(loop)
                             resolve(true)
                         } else {
+                            io.to(room._id).emit('message', { user: { name: admin_name }, text: `No one guess the word ${room.word.name}`, color: '#ffff80' })
                             next_player(room)
                         }
                     }

@@ -16,6 +16,10 @@ const words = [
         id: 'paladins',
         image: 'https://newesc.com/wp-content/uploads/Paladins-Portada-585x600.jpg'
     },
+    {
+        id: 'pokemon',
+        image: 'https://pngimg.com/uploads/pokemon/pokemon_PNG122.png'
+    }
     // {
     //     id: 'ow',
     //     image: ''

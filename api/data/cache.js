@@ -66,6 +66,7 @@ const rooms = {
             is_start: false,
             max_rounds: opts.max_rounds || 8,
             max_time: opts.max_time || 120,
+            tries_per_user: opts.tries_per_user || 0,
             time: 0,
             round: 0
         }

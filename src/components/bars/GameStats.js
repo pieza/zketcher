@@ -28,13 +28,10 @@ const GameStats = ({ socket, user, room, imHost, imOwner }) => {
                 Round: { round ? `${round}/${max_rounds}` : '-' }
             </label>
             <label>
-                Score: { user ? user.points : null }
-            </label>
-            <label>
                 Time left: { is_start && time ? time : "-"}
             </label>
             <label>
-                Champeon: { imHost && word ? word.name : "---"}
+                Secret word: { imHost && word ? word.name : "---"}
             </label>
             <label>Drawing: { host ? host.name : null }</label>
             <form className="form-inline">

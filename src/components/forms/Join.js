@@ -22,7 +22,7 @@ const Join = ({ history }) => {
                                     <i className="material-icons prefix">account_circle</i>
                                 </div>
                             </div>
-                            <input name="name" type="text" placeholder="Username"
+                            <input name="name" type="text" placeholder="Username" maxLength="10"
                                 className="form-control" required onChange={event => setName(event.target.value)}/>
                         </div>
                     </div>

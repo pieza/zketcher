@@ -15,6 +15,8 @@ module.exports = io => {
             const {error, user } = cache.users.create({ _id: socket.id, room_id, name })
             if(error || !user) return callback(error)
 
+            user.tries_left = room.tries_per_user
+
             for (const { line, opts } of room.line_history) {
                 socket.emit('draw_line', { line, opts })
             }
@@ -36,8 +38,15 @@ module.exports = io => {
             const room = cache.rooms.get(user.room_id)
 
             if(user && room) {
-                io.to(user.room_id).emit('message', { user, text: message })
                 if(room.is_start && room.host._id != user._id) {
+                    if(room.tries_per_user > 0) {
+                        if(user.tries_left == 0) {
+                            return io.to(user._id).emit('message', { user: { name: admin_name }, text: `${user.name}, you don't have more tries.`, color: '#ffcccc' })
+                        } else {
+                            user.tries_left--
+                        }
+                    }
+                    io.to(user.room_id).emit('message', { user, text: message })
                     if(message.trim().toLowerCase() == room.word.name.trim().toLowerCase()) {
                         user.points += room.time
                         io.to(user.room_id).emit('message', { user: { name: admin_name }, text: `${user.name} guess the word ${room.word.name}!!`, color: '#ffff80' })
@@ -45,11 +54,13 @@ module.exports = io => {
 
                         // check ends
                         if(room.words.length == 0 || room.max_rounds - 1 == room.round) {
-                            end_game(room)
+                            return end_game(room)
                         }
                         return next_player(room)
                     }
                     
+                } else {
+                    return io.to(user.room_id).emit('message', { user, text: message })
                 }
             }
             
@@ -144,8 +155,12 @@ module.exports = io => {
                 room.round = 1
                 room.time = room.max_time
                 cache.setRandomWord(room)
+                const users = cache.users.findByRoom(room._id)
+                users.forEach(user => {
+                    user.tries_left = room.tries_per_user
+                })
                 io.to(room._id).emit('clear_draw')
-                io.to(user.room_id).emit('room_data', { action: 'start', user, room, users: cache.users.findByRoom(user.room_id) })
+                io.to(user.room_id).emit('room_data', { action: 'start', user, room, users })
                 gameLoop(room)
             }
         }
@@ -162,9 +177,12 @@ module.exports = io => {
                 room.round++
                 room.time = room.max_time
                 cache.setRandomWord(room)
-                
+                const users = cache.users.findByRoom(room._id)
+                users.forEach(user => {
+                    user.tries_left = room.tries_per_user
+                })
                 io.to(room._id).emit('clear_draw')
-                return io.to(room._id).emit('room_data', { action: 'next_player', room, users: cache.users.findByRoom(room._id) })
+                return io.to(room._id).emit('room_data', { action: 'next_player', room, users })
             }
         }
 
@@ -187,23 +205,23 @@ module.exports = io => {
          * @param {Object} room 
          */
         const gameLoop = (room) => {
-            return new Promise((resolve, reject) => { 
-                const loop = setInterval(()=> {
-                    if(room.time > 0) {
-                        room.time--
-                        io.to(room._id).emit('room_data', { action: 'update_time', room, users: cache.users.findByRoom(room._id) })
+            let loop = setInterval(()=> {
+                if(!room.is_start) {
+                    clearInterval(loop)
+                } else if(room.time > 0) {
+                    room.time--
+                    io.to(room._id).emit('room_data', { action: 'update_time', room, users: cache.users.findByRoom(room._id) })
+                } else {
+                    if(room.words.length == 0 || room.max_rounds - 1 <= room.round) {
+                        io.to(room._id).emit('message', { user: { name: admin_name }, text: `No one guess the word ${room.word.name}`, color: '#ffff80' })
+                        end_game(room)
+                        clearInterval(loop)
                     } else {
-                        if(room.words.length == 0 || room.max_rounds - 1 == room.round) {
-                            end_game(room)
-                            clearInterval(loop)
-                            resolve(true)
-                        } else {
-                            io.to(room._id).emit('message', { user: { name: admin_name }, text: `No one guess the word ${room.word.name}`, color: '#ffff80' })
-                            next_player(room)
-                        }
+                        io.to(room._id).emit('message', { user: { name: admin_name }, text: `No one guess the word ${room.word.name}`, color: '#ffff80' })
+                        next_player(room)
                     }
-                }, 1000)
-            })
+                }
+            }, 1000)
         }
     })
 }

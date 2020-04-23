@@ -31,6 +31,7 @@ const CreateRoom = ({ history, socket }) => {
     const [id, setId] = useState('')
     const [maxTime, setMaxTime] = useState(120)
     const [maxRounds, setMaxRounds] = useState(8)
+    const [triesPerUser, setTriesPerUser] = useState(0)
     const [wordsId, setWordsId] = useState('lol')
 
     const create = e => {
@@ -41,7 +42,8 @@ const CreateRoom = ({ history, socket }) => {
                 _id: id,
                 max_time: maxTime,
                 max_rounds: maxRounds,
-                words_id: wordsId
+                words_id: wordsId,
+                tries_per_user: triesPerUser
             }
             sessionStorage.setItem('opts', JSON.stringify(opts))
             history.push(`/play/${id}`)
@@ -63,7 +65,7 @@ const CreateRoom = ({ history, socket }) => {
                                     <i className="material-icons prefix">account_circle</i>
                                 </div>
                             </div>
-                            <input name="name" type="text" placeholder="Username" value={name}
+                            <input name="name" type="text" placeholder="Username" value={name} maxLength="10"
                                 className="form-control" required onChange={event => setName(event.target.value)}/>
                         </div>
                     </div>
@@ -100,6 +102,18 @@ const CreateRoom = ({ history, socket }) => {
                             </div>
                             <input  name="room" type="number" placeholder="Time per round (seconds)" value={maxTime} max="600"
                                 className="form-control" required onChange={event => setMaxTime(event.target.value)}/>
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <div className="input-group">
+                            <div className="input-group-prepend">
+                                <div className="input-group-text">
+                                    <i className="material-icons prefix">plus_one</i>
+                                </div>
+                            </div>
+                            <input  name="triesPerUser" type="number" placeholder="Number of tries per user (cero to unlimited)" value={triesPerUser} max="50"
+                                className="form-control" required onChange={event => setTriesPerUser(event.target.value)}/>
                         </div>
                     </div>
 

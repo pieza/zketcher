@@ -77,13 +77,11 @@ const Play = ({ match, history }) => {
                     <div className="col-md-2 full-height card">
                         <div className="row">
                             <div className="col-md-12 user-list">
-                                <h2>Users</h2>
                                 <UserList users={users} />
                             </div>
                         </div>
                         <div className="row">
                             <div className="col-md-12">
-                                <h2>Chat</h2>
                                 <Chat socket={socket} messages={messages} imHost={imHost()}/>
                             </div>
                         </div>

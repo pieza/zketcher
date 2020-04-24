@@ -76,7 +76,7 @@ module.exports = io => {
                     io.to(user._id).emit('message', { user: { name: admin_name }, text: `You guess the word ${room.word.name}!!`, color: '#ffff80' })
                     io.to(user._id).emit('user_data', user)
                     io.to(host._id).emit('user_data', host)
-                    io.to(room._id).emit('room_data', { action: 'word_guessed', room, users })
+                    
 
                     if(countUsersGuessed == users.length - 1) {
                         if(room.words.length == 0 || room.max_rounds - 1 <= room.round) {
@@ -87,6 +87,8 @@ module.exports = io => {
                             io.to(room._id).emit('message', { user: { name: admin_name }, text: `Everyone guess the word ${room.word.name}`, color: '#ffff80' })
                             next_player(room)
                         }
+                    } else {
+                        io.to(room._id).emit('room_data', { action: 'word_guessed', room, users })
                     }
                     
                 }

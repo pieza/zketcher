@@ -1,5 +1,9 @@
 const cache = require('./data/cache')
 const admin_name = 'System'
+
+const EXTRA_TIME_PERCENT = 0.1
+const POINTS_PER_USER_GUESS = 10
+
 module.exports = io => {
     io.on('connection', socket => {
         console.log('new connection ' + socket.id)
@@ -37,32 +41,61 @@ module.exports = io => {
             if(!user) return
             const room = cache.rooms.get(user.room_id)
 
-            if(user && room) {
-                if(room.is_start && room.host._id != user._id) {
-                    if(room.tries_per_user > 0) {
-                        if(user.tries_left == 0) {
-                            return io.to(user._id).emit('message', { user: { name: admin_name }, text: `${user.name}, you don't have more tries.`, color: '#ffcccc' })
-                        } else {
-                            user.tries_left--
-                        }
-                    }
-                    io.to(user.room_id).emit('message', { user, text: message })
-                    if(message.trim().toLowerCase() == room.word.name.trim().toLowerCase()) {
-                        user.points += room.time
-                        io.to(user.room_id).emit('message', { user: { name: admin_name }, text: `${user.name} guess the word ${room.word.name}!!`, color: '#ffff80' })
-                        io.to(user._id).emit('user_data', user)
+            if(!room) return
 
-                        // check ends
-                        if(room.words.length == 0 || room.max_rounds - 1 == room.round) {
-                            return end_game(room)
-                        }
-                        return next_player(room)
+            const host = cache.users.findOne(room.host._id)
+
+            // chek game is start and user is not drawing
+            if(room.is_start && room.host._id != user._id && !user.gessed) {
+                const users = cache.users.findByRoom(room._id)
+
+                // check user has tries
+                if(room.tries_per_user > 0) {
+                    if(user.tries_left == 0) {
+                        return io.to(user._id).emit('message', { user: { name: admin_name }, text: `${user.name}, you don't have more tries.`, color: '#ffcccc' })
+                    } else {
+                        user.tries_left--
+                    }
+                }
+                // check guessed the word
+                if(sanizateWord(message) == sanizateWord(room.word.name)) {
+                    const countUsersGuessed = users.filter(user => user.guessed == true).length + 1
+
+                    user.points += room.time
+                    let extraTime = Math.round(room.time * EXTRA_TIME_PERCENT)
+                    if(room.time > extraTime) {
+                        room.time = extraTime
                     }
                     
-                } else {
-                    return io.to(user.room_id).emit('message', { user, text: message })
+                    host.points += Math.round(POINTS_PER_USER_GUESS * (extraTime / 10))
+
+                    user.guessed = true
+
+                    room.host = host
+                    io.to(user.room_id).emit('message', { user: { name: admin_name }, text: `${user.name} guess the word!!`, color: '#ffff80' })
+                    io.to(user._id).emit('message', { user: { name: admin_name }, text: `You guess the word ${room.word.name}!!`, color: '#ffff80' })
+                    io.to(user._id).emit('user_data', user)
+                    io.to(host._id).emit('user_data', host)
+                    io.to(room._id).emit('room_data', { action: 'word_guessed', room, users })
+
+                    if(countUsersGuessed == users.length) {
+                        if(room.words.length == 0 || room.max_rounds - 1 <= room.round) {
+                            io.to(room._id).emit('message', { user: { name: admin_name }, text: `Everyone guess the word ${room.word.name}`, color: '#ffff80' })
+                            end_game(room)
+                            clearInterval(loop)
+                        } else {
+                            io.to(room._id).emit('message', { user: { name: admin_name }, text: `Everyone guess the word ${room.word.name}`, color: '#ffff80' })
+                            next_player(room)
+                        }
+                    }
+                    
                 }
+
+            // else just send plain message
+            } else {
+                return io.to(user.room_id).emit('message', { user, text: message })
             }
+            
             
         })
 
@@ -105,8 +138,14 @@ module.exports = io => {
                 }
                 
                 socket.leave(user.room_id)
-                io.to(user.room_id).emit('message', { user: { name: admin_name }, text: `${user.name} has left.`, color: '#ffcccc' })
-                io.to(user.room_id).emit('room_data', { action: 'leave', room, users: cache.users.findByRoom(user.room_id)})
+                const users = cache.users.findByRoom(user.room_id)
+                if(users.length > 0){
+                    io.to(user.room_id).emit('message', { user: { name: admin_name }, text: `${user.name} has left.`, color: '#ffcccc' })
+                    io.to(user.room_id).emit('room_data', { action: 'leave', room, users})
+                } else {
+                    cache.rooms.delete(room._id)
+                }
+                
             }
             console.log(`bye ${user ? user.name : socket.id}`)
         })
@@ -213,15 +252,19 @@ module.exports = io => {
                     io.to(room._id).emit('room_data', { action: 'update_time', room, users: cache.users.findByRoom(room._id) })
                 } else {
                     if(room.words.length == 0 || room.max_rounds - 1 <= room.round) {
-                        io.to(room._id).emit('message', { user: { name: admin_name }, text: `No one guess the word ${room.word.name}`, color: '#ffff80' })
+                        io.to(room._id).emit('message', { user: { name: admin_name }, text: `The word was ${room.word.name}`, color: '#ffff80' })
                         end_game(room)
                         clearInterval(loop)
                     } else {
-                        io.to(room._id).emit('message', { user: { name: admin_name }, text: `No one guess the word ${room.word.name}`, color: '#ffff80' })
+                        io.to(room._id).emit('message', { user: { name: admin_name }, text: `The word was ${room.word.name}`, color: '#ffff80' })
                         next_player(room)
                     }
                 }
             }, 1000)
+        }
+
+        const sanizateWord = text => {
+            return text.trim().toLowerCase().replace("'", '') 
         }
     })
 }

@@ -19,7 +19,13 @@ const users = {
 
         if(existingUser) return { error: 'Username already exist.' }
 
-        const user = { _id, name, room_id, points: 0 }
+        const user = { 
+            _id, 
+            name, 
+            room_id, 
+            points: 0,  
+            guessed: false
+        }
         _users.push(user)
 
         return { user }
@@ -75,6 +81,11 @@ const rooms = {
 
         _rooms.push(room)
         return { room }
+    },
+    delete: _id => {
+        const index = _rooms.findIndex(room => room._id == _id)
+
+        if(index !== -1) return _rooms.splice(index, 1)[0]
     }
 }
 

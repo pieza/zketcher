@@ -10,7 +10,8 @@ const audio_joined = new Audio('http://soundbible.com/grab.php?id=1599&type=mp3'
 const audio_next_payer = new Audio('http://soundbible.com/grab.php?id=1446&type=mp3')
 const audio_game_starts = new Audio('http://soundbible.com/grab.php?id=56&type=mp3')
 const audio_game_ends = new Audio('http://soundbible.com/grab.php?id=652&type=mp3')
-const audio_word_guessed = new Audio('http://soundbible.com/grab.php?id=1258&type=mp3')
+const audio_word_guessed = new Audio('http://soundbible.com/grab.php?id=563&type=mp3')
+const audio_time_running_out = new Audio('http://soundbible.com/grab.php?id=1258&type=mp3')
 
 export default () => {
     const [socket] = useState(_socket)
@@ -42,6 +43,10 @@ export default () => {
             }
             if(data.action === 'word_guessed') {
                 audio_word_guessed.play()
+            }
+
+            if(data.room.time == 5) {
+                audio_time_running_out.play()
             }
         })
 

@@ -76,7 +76,7 @@ module.exports = io => {
                     io.to(user._id).emit('message', { user: { name: admin_name }, text: `You guess the word ${room.word.name}!!`, color: '#ffff80' })
                     io.to(user._id).emit('user_data', user)
                     io.to(host._id).emit('user_data', host)
-                    
+                    io.to(room._id).emit('room_data', { action: 'word_guessed', room, users })
 
                     if(countUsersGuessed == users.length - 1) {
                         if(room.words.length == 0 || room.max_rounds - 1 <= room.round) {
@@ -87,10 +87,7 @@ module.exports = io => {
                             io.to(room._id).emit('message', { user: { name: admin_name }, text: `Everyone guess the word ${room.word.name}`, color: '#ffff80' })
                             next_player(room)
                         }
-                    } else {
-                        io.to(room._id).emit('room_data', { action: 'word_guessed', room, users })
-                    }
-                    
+                    } 
                 }
 
             // else just send plain message
@@ -189,6 +186,7 @@ module.exports = io => {
             if(user && room) {
                 cache.users.findByRoom(user.room_id).map(user => {
                     user.points = 0
+                    user.guessed = false
                 })
                 room.line_history = []
                 room.words = room.all_words
@@ -221,6 +219,7 @@ module.exports = io => {
                 const users = cache.users.findByRoom(room._id)
                 users.forEach(user => {
                     user.tries_left = room.tries_per_user
+                    user.guessed = false
                 })
                 io.to(room._id).emit('clear_draw')
                 return io.to(room._id).emit('room_data', { action: 'next_player', room, users })

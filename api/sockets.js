@@ -1,7 +1,7 @@
 const cache = require('./data/cache')
 const admin_name = 'System'
 
-const EXTRA_TIME_PERCENT = 0.1
+const EXTRA_TIME_PERCENT = 0.2
 const POINTS_PER_USER_GUESS = 10
 
 module.exports = io => {
@@ -62,7 +62,7 @@ module.exports = io => {
                     const countUsersGuessed = users.filter(user => user.guessed == true).length + 1
 
                     user.points += room.time
-                    let extraTime = Math.round(room.time * EXTRA_TIME_PERCENT)
+                    let extraTime = Math.round(room.max_time * EXTRA_TIME_PERCENT)
                     if(room.time > extraTime) {
                         room.time = extraTime
                     }
@@ -88,6 +88,8 @@ module.exports = io => {
                             next_player(room)
                         }
                     } 
+                } else {
+                    return io.to(user.room_id).emit('message', { user, text: message })
                 }
 
             // else just send plain message

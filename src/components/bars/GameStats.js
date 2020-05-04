@@ -15,8 +15,8 @@ const GameStats = ({ socket, user, room, imHost, imOwner }) => {
     return (
         <nav className="navbar navbar-light">
             <Link className="navbar-brand" to="/">
-                <img src="/docs/4.4/assets/brand/bootstrap-solid.svg" width="30" height="30" className="d-inline-block align-top" alt="" />
-                Zketcher
+                <img src={require('../../assets/img/logo.png')} height="30" className="d-inline-block align-top" alt="zketcher" />
+                <img src={require('../../assets/img/logo_name.png')} height="30" className="d-inline-block align-top" alt="zketcher" />
             </Link>
             <label>
                 Room: { _id ? _id : null }

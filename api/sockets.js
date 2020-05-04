@@ -82,7 +82,6 @@ module.exports = io => {
                         if(room.words.length == 0 || room.max_rounds - 1 <= room.round) {
                             io.to(room._id).emit('message', { user: { name: admin_name }, text: `Everyone guess the word ${room.word.name}`, color: '#ffff80' })
                             end_game(room)
-                            clearInterval(loop)
                         } else {
                             io.to(room._id).emit('message', { user: { name: admin_name }, text: `Everyone guess the word ${room.word.name}`, color: '#ffff80' })
                             next_player(room)

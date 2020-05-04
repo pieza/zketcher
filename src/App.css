@@ -15,16 +15,16 @@
 }
 
 .btn-outline-main {
-  color: #7f4dca;
-  border-color: #7f4dca
+  color: #6a1a80;
+  border-color: #6a1a80
 }
 
 .btn-outline-main:active, .btn-outline-main:hover {
     color: #fff;
-    background-color: #7f4dca;
-    border-color: #7f4dca;
+    background-color: #6a1a80;
+    border-color: #6a1a80;
 }
 
 .border-main {
-  border-color: #7f4dca!important;
+  border-color: #6a1a80!important;
 }

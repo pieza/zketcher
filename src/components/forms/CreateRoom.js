@@ -6,19 +6,19 @@ import {
 const words = [ 
     {
         id: 'lol',
-        image: 'https://www.multifreakshop.com/wp-content/uploads/2018/02/unnamed.jpg'
+        image: require('../../assets/img/lol.jpg')
     },
     {
         id: 'ow',
-        image: 'https://i.ya-webdesign.com/images/widowmaker-logo-png-7.png'
+        image: require('../../assets/img/ow.png')
     },
     {
         id: 'paladins',
-        image: 'https://newesc.com/wp-content/uploads/Paladins-Portada-585x600.jpg'
+        image: require('../../assets/img/paladins.jpg')
     },
     {
         id: 'pokemon',
-        image: 'https://pngimg.com/uploads/pokemon/pokemon_PNG122.png'
+        image: require('../../assets/img/pokemon.png')
     }
     // {
     //     id: 'ow',

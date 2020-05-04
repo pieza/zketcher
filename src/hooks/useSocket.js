@@ -6,12 +6,12 @@ import useMessages from './useMessages'
 const endpoint = process.env.NODE_ENV === 'development' ? `localhost:${process.env.REACT_APP_SERVER_PORT}` : ''
 const _socket = socketIOClient(endpoint)
 
-const audio_joined = new Audio('http://soundbible.com/grab.php?id=1599&type=mp3')
-const audio_next_payer = new Audio('http://soundbible.com/grab.php?id=1446&type=mp3')
-const audio_game_starts = new Audio('http://soundbible.com/grab.php?id=56&type=mp3')
-const audio_game_ends = new Audio('http://soundbible.com/grab.php?id=652&type=mp3')
-const audio_word_guessed = new Audio('http://soundbible.com/grab.php?id=563&type=mp3')
-const audio_time_running_out = new Audio('http://soundbible.com/grab.php?id=1258&type=mp3')
+const AUDIO_JOINED = new Audio(require('../assets/audio/store_door_chime.mp3'))
+const AUDIO_NEXT_PLAYER = new Audio(require('../assets/audio/bike_horn.mp3'))
+const AUDIO_GAME_STARTS = new Audio(require('../assets/audio/boxing_bell_start_round.mp3'))
+const AUDIO_GAME_ENDS = new Audio(require('../assets/audio/ole_bullfighter.mp3'))
+const AUDIO_WORD_GUESSED = new Audio(require('../assets/audio/camera_shutter_click.mp3'))
+const AUDIO_TIME_RUNNING_OUT = new Audio(require('../assets/audio/tick_tock.mp3'))
 
 export default () => {
     const [socket] = useState(_socket)
@@ -26,27 +26,27 @@ export default () => {
             setRoom(data.room)
 
             if(data.action === 'start') {
-                audio_game_starts.play()
+                AUDIO_GAME_STARTS.play()
             }
 
             if(data.action === 'join') {
-                audio_joined.play()
+                AUDIO_JOINED.play()
             }
 
             if(data.action === 'next_player') {
-                audio_next_payer.play()
+                AUDIO_NEXT_PLAYER.play()
             }
 
             if(data.action === 'game_ends') {
-                audio_game_ends.play()
+                AUDIO_GAME_ENDS.play()
                 alert(`The winner is ${data.winner.name} !`)
             }
             if(data.action === 'word_guessed') {
-                audio_word_guessed.play()
+                AUDIO_WORD_GUESSED.play()
             }
 
             if(data.room.time == 5) {
-                audio_time_running_out.play()
+                AUDIO_TIME_RUNNING_OUT.play()
             }
         })
 

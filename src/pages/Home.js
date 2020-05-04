@@ -5,10 +5,12 @@ import CreateRoom from '../components/forms/CreateRoom'
 
 import './Home.css'
 
+import Background from '../assets/img/bg.jpg'
+
 const Home = () => {
     return (
         <>
-            <div className="home">
+            <div className="home" style={{ backgroundImage: `url(${Background})` }}>
                 <Navbar className="mb-6 " />
                 <div className="container mt-6">
                     <div className="row mb-4">

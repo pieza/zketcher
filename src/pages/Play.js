@@ -14,6 +14,8 @@ import Chat from '../components/Chat'
 import GameStats from '../components/bars/GameStats'
 import ToolsPallete from '../components/bars/ToolsPallete'
 
+import Modal from '../components/notifications/Modal'
+
 const Play = ({ match, history }) => {
     const { socket, users, room, user, messages } = useSocket()
     const [pallete, setPallete] = usePallete()
@@ -41,16 +43,16 @@ const Play = ({ match, history }) => {
                     alert(error)
                     history.push(`/`)
                 } else {
-                    socket.emit('join', { room_id: id, name }, error => { 
+                    socket.emit('join', { room_id: id, name }, error => {
                         alert(error)
                         history.push(`/`)
                     })
-                } 
-                
+                }
+
             })
             sessionStorage.removeItem('opts')
         } else if(id && name && name.trim()) {
-            socket.emit('join', { room_id: id, name }, error => { 
+            socket.emit('join', { room_id: id, name }, error => {
                 alert(error)
                 history.push(`/`)
             } )
@@ -59,18 +61,19 @@ const Play = ({ match, history }) => {
             history.push(`/`)
             sessionStorage.removeItem('username')
         }
-        
+
         return () => {
             sessionStorage.removeItem('username')
             sessionStorage.removeItem('opts')
             socket.off()
             socket.disconnect()
         }
-        
-    }, []) 
+
+    }, [])
     return (
         <>
             {/* <DrawableCanvas socket={socket}/> */}
+
             <GameStats socket={socket} user={user} room={room} imHost={imHost()} imOwner={imOwner()}/>
             <div className="container">
                 <div className="row">
@@ -87,6 +90,7 @@ const Play = ({ match, history }) => {
                         </div>
                     </div>
                     <div className="col-md-9 full-height card">
+                    <Modal/>
                         <DrawableCanvas className="full-height" socket={socket} pallete={pallete}/>
                     </div>
                     <div className="col-md-1 full-height card">

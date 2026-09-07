@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { useImmer } from 'use-immer'
+import { useState } from 'react'
 
 export default () => {
     const [pallete, setPallete] = useState({

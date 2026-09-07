@@ -18,12 +18,12 @@ const UserList = ({ users }) => {
             </thead>
             <tbody>
                 { users ? users.map(user => 
-                    <tr key={user._id}>
+                    <tr key={user.id || user._id}>
                         <td style={{ wordWrap: 'break-word', maxWidth:'10px' }}>
-                            { user.name }
+                            { user.name || user.nickname }
                         </td>
                         <td>
-                            { user.points }
+                            { user.points || user.score || 0 }
                         </td>
                         <td>
                             { user.tries_left }

@@ -28,3 +28,22 @@
 .border-main {
   border-color: #6a1a80!important;
 }
+
+.btn-main {
+  color: #fff;
+  background-color: #6a1a80;
+  border-color: #6a1a80;
+}
+
+.game-stats {
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.game-stats > span {
+  white-space: nowrap;
+}
+
+.read-only {
+  cursor: default;
+}

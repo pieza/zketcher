@@ -26,7 +26,7 @@ const words = [
     // }
 ]
 
-const CreateRoom = ({ history, socket }) => {
+const CreateRoom = ({ history }) => {
     const [name, setName] = useState('')
     const [id, setId] = useState('')
     const [maxTime, setMaxTime] = useState(120)
@@ -37,21 +37,19 @@ const CreateRoom = ({ history, socket }) => {
     const create = e => {
         e.preventDefault()
         if(id && name && maxRounds && maxTime) {
-            sessionStorage.setItem('username', name)
             const opts = {
-                _id: id,
+                roomId: id,
                 max_time: maxTime,
                 max_rounds: maxRounds,
                 words_id: wordsId,
                 tries_per_user: triesPerUser
             }
-            sessionStorage.setItem('opts', JSON.stringify(opts))
-            history.push(`/play/${id}`)
+            history.push({ pathname: `/play/${id}`, state: { nickname: name.trim(), createOptions: { maxTime, maxRounds, triesPerUser, wordsId }, ...opts } })
         }
         
     }
 
-    const handleWordsClick = (e, word) => {
+    const handleWordsClick = (word) => {
         setWordsId(word.id)
     }
     return (
@@ -122,8 +120,8 @@ const CreateRoom = ({ history, socket }) => {
                         <ul>
                             { words.map((word, key) => { return (
                                 <li key={key}>
-                                    <input type="checkbox" id={`cb${key}`} checked={wordsId == word.id} onClick={e => handleWordsClick(e, word)} readOnly/>
-                                    <label htmlFor={`cb${key}`}><img src={word.image} /></label>
+                                    <input type="checkbox" id={`cb${key}`} checked={wordsId === word.id} onClick={() => handleWordsClick(word)} readOnly/>
+                                    <label htmlFor={`cb${key}`}><img src={word.image} alt={word.id} /></label>
                                 </li>
                             )})}
                         </ul>

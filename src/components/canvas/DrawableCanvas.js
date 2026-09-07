@@ -1,93 +1,71 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import './DrawableCanvas.css'
 
-import useMouse from '../../hooks/useMouse'
+const DrawableCanvas = ({ pallete, strokes, canDraw, onDrawLine }) => {
+    const canvasRef = useRef(null)
+    const drawingRef = useRef(false)
+    const previousPointRef = useRef(null)
 
-const DrawableCanvas = ({ socket, pallete }) => {
-    const [mouse, setMouse] = useMouse()
-    
-    const handleMouseMove = e => {
-
+    const drawStroke = (ctx, stroke, width, height) => {
+        if (!stroke || !stroke.line || stroke.line.length !== 2) return
+        const opts = stroke.opts || {}
+        ctx.beginPath()
+        ctx.lineWidth = Number(opts.size) || 2
+        ctx.strokeStyle = opts.color || '#000000'
+        ctx.lineCap = 'round'
+        ctx.moveTo(stroke.line[0].x * width, stroke.line[0].y * height)
+        ctx.lineTo(stroke.line[1].x * width, stroke.line[1].y * height)
+        ctx.stroke()
     }
 
     useEffect(() => {
-        const canvas = document.getElementById('chart')
-        const ctx = canvas.getContext('2d')
-        const width = canvas.offsetWidth
-        const height = canvas.offsetHeight
-    
-        canvas.width = width
-        canvas.height = height
+        const canvas = canvasRef.current
+        if (!canvas) return undefined
+        const resize = () => {
+            const rect = canvas.getBoundingClientRect()
+            const scale = window.devicePixelRatio || 1
+            canvas.width = rect.width * scale
+            canvas.height = rect.height * scale
+            const ctx = canvas.getContext('2d')
+            ctx.setTransform(scale, 0, 0, scale, 0, 0)
+            ctx.clearRect(0, 0, rect.width, rect.height)
+            strokes.forEach(stroke => drawStroke(ctx, stroke, rect.width, rect.height))
+        }
+        resize()
+        window.addEventListener('resize', resize)
+        return () => window.removeEventListener('resize', resize)
+    }, [strokes])
 
-        canvas.addEventListener('mousedown', e => {
-            setMouse(draft => {
-                draft.click = true
-            })
-        })
+    const pointFromEvent = event => {
+        const rect = event.currentTarget.getBoundingClientRect()
+        return {
+            x: Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)),
+            y: Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
+        }
+    }
 
-        canvas.addEventListener('mouseup', e => {
-            setMouse(draft => {
-                draft.click = false
-            })
-        })
+    const handlePointerDown = event => {
+        if (!canDraw) return
+        drawingRef.current = true
+        previousPointRef.current = pointFromEvent(event)
+        event.currentTarget.setPointerCapture(event.pointerId)
+    }
 
-        canvas.addEventListener('mousemove', e => {
-            setMouse(draft => {
-                draft.pos.x = e.offsetX / width
-                draft.pos.y = e.offsetY / height
-                draft.move = true
-            })
-            
-        })
+    const handlePointerMove = event => {
+        if (!canDraw || !drawingRef.current || !previousPointRef.current) return
+        const nextPoint = pointFromEvent(event)
+        const line = [previousPointRef.current, nextPoint]
+        previousPointRef.current = nextPoint
+        onDrawLine(line, { size: pallete.size, color: pallete.color }).catch(() => undefined)
+    }
 
-        socket.on('draw_line', ({ line, opts }) => {
-            ctx.beginPath()
-            ctx.lineWidth = opts.size
-            ctx.strokeStyle = opts.color
-            ctx.lineCap = 'round'
-            ctx.moveTo(line[0].x * width, line[0].y * height)
-            ctx.lineTo(line[1].x * width, line[1].y * height)
-            ctx.stroke()
-        })
+    const stopDrawing = event => {
+        drawingRef.current = false
+        previousPointRef.current = null
+        if (event.currentTarget.hasPointerCapture && event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
+    }
 
-        socket.on('clear_draw', () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-        })
-
-
-    }, [])
-
-    useEffect(() => {
-
-        setMouse(draft => {
-            if (draft.click && draft.move && draft.pos_prev) {
-                socket.emit('draw_line', { line: [draft.pos, draft.pos_prev], opts: { size: pallete.size, color: pallete.color }})
-            }
-            draft.pos_prev = { x: draft.pos.x, y: draft.pos.y }
-        })
-
-        
-        // const mainLoop = () => {
-        //     setMouse(draft => {
-        //         console.log(draft.click && draft.move && draft.pos_prev, draft.click, draft.move, draft.pos.x)
-        //         if (draft.click && draft.move && draft.pos_prev) {
-        //             console.log(draft.click, draft.move, draft.pos_prev)
-        //             socket.emit('draw_line', { line: [draft.pos, draft.pos_prev], opts: { size: pallete.size, color: pallete.color }})
-
-        //         }
-        //         draft.pos_prev = { x: draft.pos.x, y: draft.pos.y }
-        //     })
-        //     setTimeout(mainLoop, 10)
-        // }
-        // mainLoop()
-            
-    }, [mouse.pos])
-
-    
-
-    return (
-        <canvas id="chart"> </canvas>
-    )
+    return <canvas ref={canvasRef} id="chart" className={canDraw ? 'drawable-canvas' : 'drawable-canvas read-only'} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={stopDrawing} onPointerCancel={stopDrawing} />
 }
 
 export default DrawableCanvas

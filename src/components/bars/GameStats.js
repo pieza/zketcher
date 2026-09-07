@@ -1,49 +1,42 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+const GameStats = ({ user, room, currentWord, canStart, onStart, onExpired }) => {
+    const [timeLeft, setTimeLeft] = useState(0)
+    const { _id, host, round, max_rounds: maxRounds, status, round_ends_at: roundEndsAt } = room || {}
 
-const GameStats = ({ socket, user, room, imHost, imOwner }) => {
-    const { _id, host, word, round, time, is_start, max_rounds } = room
-    
-    const handleStartClick = e => {
-        e.preventDefault()
-        socket.emit('start_game')
-    }
-
-
+    useEffect(() => {
+        if (!roundEndsAt || status !== 'playing') {
+            setTimeLeft(0)
+            return undefined
+        }
+        let expired = false
+        const update = () => {
+            const next = Math.max(0, Math.ceil((new Date(roundEndsAt).getTime() - Date.now()) / 1000))
+            setTimeLeft(next)
+            if (next === 0 && !expired) {
+                expired = true
+                Promise.resolve(onExpired()).catch(() => undefined)
+            }
+        }
+        update()
+        const timer = window.setInterval(update, 250)
+        return () => window.clearInterval(timer)
+    }, [roundEndsAt, status, onExpired])
 
     return (
-        <nav className="navbar navbar-light">
+        <nav className="navbar navbar-light game-stats">
             <Link className="navbar-brand" to="/">
                 <img src={require('../../assets/img/logo.png')} height="30" className="d-inline-block align-top" alt="zketcher" />
                 <img src={require('../../assets/img/logo_name.png')} height="30" className="d-inline-block align-top" alt="zketcher" />
             </Link>
-            <label>
-                Room: { _id ? _id : null }
-            </label>
-            <label>
-                You are: { user ? user.name : null }
-            </label>
-            <label>
-                Round: { round ? `${round}/${max_rounds}` : '-' }
-            </label>
-            <label>
-                Time left: { is_start && time ? time : "-"}
-            </label>
-            <label>
-                Secret word: { imHost && word ? word.name : "---"}
-            </label>
-            <label>Drawing: { host ? host.name : null }</label>
-            <form className="form-inline">
-                
-                { imHost ? 
-                    room && !is_start ? 
-                    <button className="btn btn-outline-success my-2 my-sm-0" onClick={handleStartClick}>Start</button>
-                    : null
-                : null }
-                
-            </form>
-
+            <span>Room: {_id || '-'}</span>
+            <span>You are: {user ? user.name : '-'}</span>
+            <span>Round: {round ? `${round}/${maxRounds}` : '-'}</span>
+            <span>Time left: {status === 'playing' ? timeLeft : '-'}</span>
+            <span>Secret word: {currentWord || '---'}</span>
+            <span>Drawing: {host ? host.name : '-'}</span>
+            {canStart && status !== 'playing' && <button className="btn btn-outline-success" onClick={event => { event.preventDefault(); Promise.resolve(onStart()).catch(() => undefined) }}>Start</button>}
         </nav>
     )
 }

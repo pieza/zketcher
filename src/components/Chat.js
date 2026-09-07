@@ -3,11 +3,12 @@ import MessageList from './lists/MessageList'
 
 import './Chat.css'
 
-const Chat = ({ socket, messages, imHost }) => {
+const Chat = ({ messages, onSend }) => {
     const [message, setMessage] = useState('')
     const sendMessage = (e) => {
         e.preventDefault()
-        socket.emit('send_message', message)
+        if (!message.trim()) return
+        onSend(message.trim()).catch(() => undefined)
         setMessage('')
     }
 

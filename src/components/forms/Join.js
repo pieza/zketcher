@@ -8,8 +8,7 @@ const Join = ({ history }) => {
     const [room, setRoom] = useState('')
     const join = e => {
         e.preventDefault()
-        sessionStorage.setItem('username', name)
-        history.push(`/play/${room}`)
+        history.push({ pathname: `/play/${room}`, state: { nickname: name.trim() } })
     }
     return (
         <>

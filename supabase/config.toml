@@ -1,0 +1,22 @@
+project_id = "zketcher"
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[auth]
+enabled = true
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+[realtime]
+enabled = true
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
